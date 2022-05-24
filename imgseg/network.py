@@ -4,7 +4,7 @@ import torchvision.transforms.functional as F
 
 class DoubleConvLayer(nn.Module):
     """
-    Encoder Double Convolution Layer with Batchnorm
+    Double Convolution Layer with Batchnorm and padding for convolutions.
     """
     def __init__(self, in_channels: int, out_channels: int):
         super().__init__()
@@ -25,10 +25,19 @@ class DoubleConvLayer(nn.Module):
     
 class UNet(nn.Module):
     """
-    U-Net Implementation according to paper: https://arxiv.org/pdf/1505.04597.pdf
+    U-Net Implementation mainly based on paper: https://arxiv.org/pdf/1505.04597.pdf
+    
+    Thus, the implementation deviates in terms of the created output, which is equal to the input image. This was realized using
+    padding in each double conv layers. 
+    (Pytorch Implementation uses same: https://pytorch.org/hub/mateuszbuda_brain-segmentation-pytorch_unet/)
+    
+    Another Deviation from the original is by using Batchnorm in each double conv layer.
     """
     
-    def __init__(self, in_channels: int):
+    def __init__(self, in_channels: int, out_channels: int):
+        """
+        
+        """
         super().__init__()
         # Encoder Modules
         self.in_channels = in_channels
@@ -48,7 +57,7 @@ class UNet(nn.Module):
         self.double_conv8 = DoubleConvLayer(in_channels=256, out_channels=128)
         self.deconv4 = nn.ConvTranspose2d(in_channels=128, out_channels=64, kernel_size=(2, 2), stride=2)
         self.double_conv9 = DoubleConvLayer(in_channels=128, out_channels=64)
-        self.final_conv = nn.Conv2d(in_channels=64, out_channels=2, kernel_size=(1, 1))
+        self.final_conv = nn.Conv2d(in_channels=64, out_channels=out_channels, kernel_size=(1, 1))
         
     def forward(self, x):
         # Encoder Part
