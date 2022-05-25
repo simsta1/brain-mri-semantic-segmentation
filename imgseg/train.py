@@ -3,7 +3,27 @@ import numpy as np
 import pandas as pd
 
 
-class TrainingInterface():
+class DiceLoss(nn.Module):
+    """
+    https://github.com/mateuszbuda/brain-segmentation-pytorch/blob/d45f8908ab2f0246ba204c702a6161c9eb25f902/loss.py#L4
+    """
+    def __init__(self, smooth: float = 1.0):
+        super(DiceLoss, self).__init__()
+        self.smooth = smooth
+
+    def forward(self, y_pred, y_true):
+        assert y_pred.size() == y_true.size()
+        y_pred = y_pred[:, 0].contiguous().view(-1)
+        y_true = y_true[:, 0].contiguous().view(-1)
+        intersection = (y_pred * y_true).sum()
+        dsc = (2. * intersection + self.smooth) / (
+            y_pred.sum() + y_true.sum() + self.smooth
+        )
+        return 1. - dsc
+
+
+
+class TrainingInterface:
     
     def __init__(self, model, name, writer: object = None):
         """
@@ -29,7 +49,7 @@ class TrainingInterface():
         self.batch_train_loss = []
         self.batch_val_loss = []
         self.epoch_train_loss = []
-        self.epch_val_loss = []
+        self.epoch_val_loss = []
         
 
     def print_network(self):
@@ -130,8 +150,7 @@ class TrainingInterface():
                     
         return self
     
-    def segment(self, dataloader, return_images: bool = True, return_prob: bool = True, 
-                disable_pbar: bool = False):
+    def segment(self, dataloader, return_images: bool = False, disable_pbar: bool = False):
         """
         Returns true and predicted labels for prediction
         Params:
@@ -151,29 +170,29 @@ class TrainingInterface():
         """
         self.model.to(self.dev)
         self.model.eval()
-        y_pred, y_true, y_images, y_prob = [], [], [], [] 
+        y_pred, y_true, y_images = [], [], []
         
         with torch.no_grad():
             for batch in tqdm(dataloader, desc='Calculate Predictions', disable=disable_pbar):
-                images, labels = batch
-                images, labels = images.to(self.dev), labels.to(self.dev)
-                y_probs = F.sigmoid(self.model(images))
+                images, masks = batch
+                images = images.to(self.dev)
+                predicted_masks = self.model(images)
                 
-                #y_probs = F.softmax(self.model(images), dim = -1)
+                # Predict Masks with thresholding of sigmoid output
+                predicted_masks = torch.where(predicted_masks >= .5, 1., 0.)
                 
+                y_true.append(masks.cpu())
+                
+                y_pred.append(predicted_masks.cpu())
                 if return_images:
                     y_images.append(images.cpu())
-                y_prob.append(y_probs.cpu()) 
-                y_true.append(labels.cpu())
                 
+                        
+        y_true = torch.cat(y_true, dim=0)
+        y_pred = torch.cat(y_pred, dim=0)
         if return_images:
-            y_images = torch.cat(y_images, dim = 0)
-        
-        y_prob = torch.cat(y_prob, dim = 0)
-        y_true = torch.cat(y_true, dim = 0)
-        y_pred = torch.argmax(y_prob, 1)        
+            y_images = torch.cat(y_images, dim=0)
 
         return (y_true, 
                 y_pred, 
-                y_images if return_images else None,
-                y_prob if return_prob else None)
+                y_images if return_images else False)

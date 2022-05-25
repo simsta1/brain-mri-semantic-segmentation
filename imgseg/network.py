@@ -58,6 +58,7 @@ class UNet4(nn.Module):
         self.deconv4 = nn.ConvTranspose2d(in_channels=128, out_channels=64, kernel_size=(2, 2), stride=2)
         self.double_conv9 = DoubleConvLayer(in_channels=128, out_channels=64)
         self.final_conv = nn.Conv2d(in_channels=64, out_channels=out_channels, kernel_size=(1, 1))
+        self.out_activation = nn.Sigmoid()
         
     def forward(self, x):
         # Encoder Part
@@ -96,8 +97,9 @@ class UNet4(nn.Module):
         x = torch.cat((x, identity1), dim=1)
         x = self.double_conv9(x)  
         
-        return self.final_conv(x)
-    
+        x = self.final_conv(x)
+        
+        return self.out_activation(x)    
     
 class UNet3(nn.Module):
     """
@@ -131,6 +133,7 @@ class UNet3(nn.Module):
         self.deconv4 = nn.ConvTranspose2d(in_channels=128, out_channels=64, kernel_size=(2, 2), stride=2)
         self.double_conv9 = DoubleConvLayer(in_channels=128, out_channels=64)
         self.final_conv = nn.Conv2d(in_channels=64, out_channels=out_channels, kernel_size=(1, 1))
+        self.out_activation = nn.Sigmoid()
         
     def forward(self, x):
         # Encoder Part
@@ -161,4 +164,6 @@ class UNet3(nn.Module):
         x = torch.cat((x, identity1), dim=1)
         x = self.double_conv9(x)  
         
-        return self.final_conv(x)
+        x = self.final_conv(x)
+        
+        return self.out_activation(x)
