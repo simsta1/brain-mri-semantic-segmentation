@@ -1,6 +1,8 @@
 import torch
 import numpy as np
 import pandas as pd
+import torch.nn as nn
+from tqdm import tqdm
 
 
 class DiceLoss(nn.Module):
@@ -20,7 +22,6 @@ class DiceLoss(nn.Module):
             y_pred.sum() + y_true.sum() + self.smooth
         )
         return 1. - dsc
-
 
 
 class TrainingInterface:
@@ -44,6 +45,7 @@ class TrainingInterface:
         self.name = name 
         self.writer = writer
         
+        self.threshold = .5
         self.dev = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
         self.epoch = 0
         self.batch_train_loss = []
@@ -150,6 +152,15 @@ class TrainingInterface:
                     
         return self
     
+    @property
+    def threshold(self):
+        return self.threshold
+    
+    @threshold.setter
+    def update_threshold(self, threshold: float):
+        assert threshold <= 1 and threshold >= 0, 'Threshold not in range of [0, 1]'
+        self.threshold = threshold
+    
     def segment(self, dataloader, return_images: bool = False, disable_pbar: bool = False):
         """
         Returns true and predicted labels for prediction
@@ -179,7 +190,7 @@ class TrainingInterface:
                 predicted_masks = self.model(images)
                 
                 # Predict Masks with thresholding of sigmoid output
-                predicted_masks = torch.where(predicted_masks >= .5, 1., 0.)
+                predicted_masks = torch.where(predicted_masks >= self.threshold, 1., 0.)
                 
                 y_true.append(masks.cpu())
                 

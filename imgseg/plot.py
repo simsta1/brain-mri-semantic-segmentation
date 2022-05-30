@@ -62,3 +62,111 @@ def plot_one_image_mask(df: pd.DataFrame, img_name: str, path_masks: str = './ka
     plt.axis('off')
     
     plt.show()
+    
+    
+def plot_train_val_loss(train_loss = None, val_loss = None, **kwargs):
+    """plot train and validation loss
+    Args:
+        train_loss (list or array): list of loss values
+        val_loss (list or array): list of loss values
+    """
+
+    fig = plt.subplots(figsize=(14, 4))
+    if train_loss:
+        if val_loss:
+            plt.subplot(1,2,1)
+        p = sns.lineplot(x=np.arange(len(train_loss)), 
+                         y=train_loss, label='Loss')
+        p.set_title('Training Loss', loc='left')
+        p.set_xlabel('Batches')
+        p.set_ylabel('Loss')
+        sns.despine()
+    if val_loss:
+        if train_loss:
+            plt.subplot(1,2,2)
+        p = sns.lineplot(x=np.arange(len(val_loss)), y=val_loss,
+                         label='Loss')
+        p.set_title('Validation Loss', loc='left')
+        p.set_xlabel('Batches')
+        p.set_ylabel('Loss')
+        sns.despine()
+
+    plt.show()
+
+    
+def loss_sma(loss, sma=50, show_fig = True):
+        """plot loss with moving average
+        
+        Args:
+            loss (_type_): _description_
+            sma (int, optional): _description_. Defaults to 50.
+            show_fig (bool, optional): _description_. Defaults to True.
+        """
+        colors = sns.color_palette('Paired', 4)
+        sns.set_style('white')
+        if not isinstance(loss, pd.Series):
+            loss = pd.Series(loss)
+
+        mean_loss_folds = loss.rolling(sma).mean()
+        std_loss_folds = loss.rolling(sma).std()
+
+        p = sns.lineplot(x=mean_loss_folds.index, y=mean_loss_folds, label='Mean Batch', color=colors[1])
+        p = sns.lineplot(x=mean_loss_folds.index, y=mean_loss_folds + std_loss_folds, 
+                         label=r'$\pm1\sigma$', color=colors[0], linestyle='--', alpha=.5)
+        p = sns.lineplot(x=mean_loss_folds.index, y=mean_loss_folds - std_loss_folds, 
+                         color=colors[0], linestyle='--', alpha=.5)
+        plt.text(x=mean_loss_folds.index[-1], y=mean_loss_folds.iloc[-1], 
+                 s=str(round(mean_loss_folds.iloc[-1], 2)), va='center')
+
+        p.set_title(f'Loss over Batches / SMA{50}',loc='left')
+        p.set_xlabel('Batches')
+        p.set_ylabel('Loss')
+        sns.despine()
+        if show_fig:
+            plt.show()
+            
+            
+def visualize_overlaps(n: int, y_true: list, y_pred: list, images: list, inverse_image_transforms = None):
+    """
+    Visualizes overlpas between image and segmentation mask.
+    """
+    for idx in np.random.choice(np.arange(len(y_true)), n):
+        PLOT_ID = idx
+        if inverse_image_transforms:
+            true_mask = inverse_image_transforms(y_true[PLOT_ID])
+            pred_mask = inverse_image_transforms(y_pred[PLOT_ID])
+            image = inverse_image_transforms(images[PLOT_ID])
+
+        fig, ax = plt.subplots(figsize=(12, 4))
+
+        plt.subplot(1,3,1)
+        plt.imshow(true_mask, 
+                   cmap='gray', 
+                   label='True', 
+                   interpolation='none') 
+        plt.axis('off')
+        plt.title(f'True Mask {PLOT_ID}')
+
+        plt.subplot(1,3,2)
+        plt.imshow(pred_mask, 
+                   cmap='jet', 
+                   alpha=0.5, 
+                   label='Predicted', 
+                   interpolation='none') 
+        plt.axis('off')
+        plt.title(f'Predicted Mask {PLOT_ID}')
+
+        plt.subplot(1,3,3)
+        plt.imshow(image, cmap='gray')
+        plt.imshow(true_mask, cmap='gray', 
+                   label='True', 
+                   interpolation='none', alpha=.3) 
+        plt.imshow(pred_mask, 
+                   cmap='jet', 
+                   alpha=0.3, 
+                   label='Predicted', 
+                   interpolation='none') 
+        plt.axis('off')
+        plt.title('Overlay')
+
+        plt.show()
