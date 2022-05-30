@@ -151,16 +151,7 @@ class TrainingInterface:
                 loss_before = running_loss
                     
         return self
-    
-    @property
-    def threshold(self):
-        return self.threshold
-    
-    @threshold.setter
-    def update_threshold(self, threshold: float):
-        assert threshold <= 1 and threshold >= 0, 'Threshold not in range of [0, 1]'
-        self.threshold = threshold
-    
+        
     def segment(self, dataloader, return_images: bool = False, disable_pbar: bool = False):
         """
         Returns true and predicted labels for prediction
