@@ -26,7 +26,7 @@ class DiceLoss(nn.Module):
 
 class TrainingInterface:
     
-    def __init__(self, model, name, writer: object = None):
+    def __init__(self, model, name, writer: object = None, threshold: float = .5):
         """
         Training Interface Wrapper class for the training of neural network classifier
         in pytorch. Only applicable for image classification.
