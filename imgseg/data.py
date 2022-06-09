@@ -29,13 +29,30 @@ class SegmentationDataset(Dataset):
         image, mask = self.df.loc[idx, ['image', 'mask']].values
         image = PIL.Image.open(os.path.join(self.image_dir, image))
         mask = PIL.Image.open(os.path.join(self.mask_dir, mask))
-        
-        tensor_transform = transforms.ToTensor()
+                
+        tensor_transform = transforms.Compose([
+            transforms.Resize((256, 256)),
+            transforms.ToTensor()
+        ])
         
         if self.transforms:
-            image = self.transforms(image)
-        else:
-            image = tensor_transform(image)
+            # apply equal transforms to mask and image
+            if random.random() > 0.5:
+                image = transforms.functional.hflip(image)
+                mask = transforms.functional.hflip(mask)
+
+            # Random vertical flipping
+            if random.random() > 0.5:
+                image = transforms.functional.vflip(image)
+                mask = transforms.functional.vflip(mask)
+            
+            # Apply random roation
+            if random.random() > 0.5:
+                angle = np.random.randint(0, 360)
+                image = transforms.functional.rotate(img=image, angle=angle)
+                mask = transforms.functional.rotate(img=mask, angle=angle)         
+            
+        image = tensor_transform(image)
         mask = tensor_transform(mask)
         
         return image, mask
