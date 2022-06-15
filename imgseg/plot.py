@@ -125,12 +125,20 @@ def loss_sma(loss, sma=50, show_fig = True):
         if show_fig:
             plt.show()
             
-            
-def visualize_overlaps(n: int, y_true: list, y_pred: list, images: list, inverse_image_transforms = None):
+
+def visualize_overlaps(n: int, y_true: list, y_pred: list, images: list, 
+                       inverse_image_transforms = None):
     """
     Visualizes overlpas between image and segmentation mask.
     """
-    for idx in np.random.choice(np.arange(len(y_true)), n):
+    mask_images_idx = []
+    i = 0
+    while len(mask_images_idx) < n:
+        if y_true[i].sum() > 0:
+            mask_images_idx.append(i)
+        i += 1
+    
+    for idx in mask_images_idx:
         PLOT_ID = idx
         if inverse_image_transforms:
             true_mask = inverse_image_transforms(y_true[PLOT_ID])

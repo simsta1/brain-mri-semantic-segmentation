@@ -100,12 +100,12 @@ class TverskyLoss(nn.Module):
             
         return loss
     
-class CustomDiceLoss(nn.Module):
+class BWDiceLoss(nn.Module):
     """
     Implementation of Dice Loss using the boarder weights from the original U-Net paper.
     """
     def __init__(self, smooth: float = 1.0, reduction='sum', sigma: int = 5, weight_bias: int = 10):
-        super(CustomDiceLoss, self).__init__()
+        super(BWDiceLoss, self).__init__()
         self.smooth = smooth
         self.reduction = reduction
         self.sigma = sigma

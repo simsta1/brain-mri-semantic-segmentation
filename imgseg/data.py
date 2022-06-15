@@ -6,6 +6,7 @@ from torchvision import transforms as transforms
 import pandas as pd
 import numpy as np
 import pickle
+import random
 
 
 class SegmentationDataset(Dataset):
