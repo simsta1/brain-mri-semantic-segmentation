@@ -3,6 +3,9 @@
 
 # Semantic Segmentation of Brain Tumours
 
+<img src="doc\brain_mris.png" width="600" align="center">
+
+
 This repository implements two semantic segmentation models UNet-3 (3 skip-cons) and UNet-4 (4 skip cons). the models can be found in `./imgseg/networks.py`
 
 
