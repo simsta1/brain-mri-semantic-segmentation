@@ -13,7 +13,7 @@ This repository implements two semantic segmentation models UNet-3 (3 skip-cons)
 ## Documentation
 
 The documentation of the whole procedure from start to finish is 
-documented in the notebook `image_segment.ipynb`.
+documented in the notebook `documentation.ipynb`.
 
 
 ## Models
@@ -45,6 +45,7 @@ git clone https://github.com/SimonStaehli/image-segmentation.git
 ```bash
 pip install -r requirements.txt
 ```
+Note: if there is a problem with the installation please refer to the official pytorch installation guide: https://pytorch.org/get-started/locally/
 
 ## Run Locally
 
