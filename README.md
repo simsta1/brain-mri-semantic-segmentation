@@ -13,7 +13,7 @@ This repository implements two semantic segmentation models UNet-3 (3 skip-cons)
 ## Documentation
 
 The documentation of the whole procedure from start to finish is 
-documented in the notebook `image_segment.ipynb`.
+documented in the notebook `documentation.ipynb`.
 
 
 ## Models
