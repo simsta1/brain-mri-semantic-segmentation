@@ -3,9 +3,11 @@ import numpy as np
 import pandas as pd
 import torch.nn as nn
 from tqdm import tqdm
+from torchvision import transforms as transforms
 
 
-class TrainingInterface:
+
+class ModelInterface:
     
     def __init__(self, model, name, writer: object = None, threshold: float = .5):
         """
@@ -140,7 +142,6 @@ class TrainingInterface:
         
         Params:
         ---------
-        model:           Pytorch Neuronal Net
         dataloader:      batched Testset
         return_images:   If true returns images
         disable_pbar:    If true disables pbar
@@ -179,3 +180,22 @@ class TrainingInterface:
         return (y_true, 
                 y_pred, 
                 y_images if return_images else False)
+    
+    def segment_image(self, image: 'torch.Tensor | PIL.Image') -> torch.Tensor:
+        """Returns a segmentation mask for an image."""
+        if not isinstance(image, torch.Tensor):
+            image = transforms.ToTensor()(image).unsqueeze(0)
+            
+        self.model.to(self.dev)
+        self.model.eval()
+        
+        with torch.no_grad():
+            image = image.to(self.dev)
+            predicted_mask = self.model(image)
+
+            # Predict Masks with thresholding of sigmoid output
+            if self.threshold:
+                predicted_mask = torch.where(predicted_mask >= self.threshold, 1., 0.)
+                
+        return predicted_mask
+    
