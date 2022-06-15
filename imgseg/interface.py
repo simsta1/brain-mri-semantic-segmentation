@@ -6,7 +6,6 @@ from tqdm import tqdm
 from torchvision import transforms as transforms
 
 
-
 class ModelInterface:
     
     def __init__(self, model, name, writer: object = None, threshold: float = .5):
@@ -198,4 +197,3 @@ class ModelInterface:
                 predicted_mask = torch.where(predicted_mask >= self.threshold, 1., 0.)
                 
         return predicted_mask
-    

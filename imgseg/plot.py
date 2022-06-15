@@ -7,11 +7,12 @@ import PIL
 
 plt.rcParams["savefig.bbox"] = 'tight'
 
-
-def show(imgs, return_grid=False):
+def show(imgs, return_grid=False, figsize=(12,8), ncols = None):
     if not isinstance(imgs, list):
         imgs = [imgs]
-    fix, axs = plt.subplots(figsize=(12,8), ncols=len(imgs), squeeze=False)
+    if ncols is None:
+        ncols = len(imgs)
+    fix, axs = plt.subplots(figsize=figsize, ncols=ncols, squeeze=False)
     for i, img in enumerate(imgs):
         img = img.detach()
         img = F.to_pil_image(img)
