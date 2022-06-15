@@ -45,6 +45,7 @@ git clone https://github.com/SimonStaehli/image-segmentation.git
 ```bash
 pip install -r requirements.txt
 ```
+Note: if there is a problem with the installation please refer to the official pytorch installation guide: https://pytorch.org/get-started/locally/
 
 ## Run Locally
 
