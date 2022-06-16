@@ -2,6 +2,7 @@ import os
 import argparse
 from tqdm import tqdm
 import PIL
+import matplotlib.pyplot as plt
 
 import torch
 import torchvision.transforms as transforms
@@ -28,6 +29,11 @@ parser.add_argument(
     '-m',
     help='Defines the model to use from models folder, should be path',
     default='./models/dice_unet4_50eps_16bs.pth'
+)
+parser.add_argument(
+    '--overlay',
+    help='If true overlays segment mask over image',
+    default='False'
 )
 
 
@@ -73,8 +79,9 @@ def inference(all_images, model_path):
             predicted_mask = model(image.unsqueeze(0))
             predicted_mask = torch.where(predicted_mask >= .5, 1., 0.)
             segmentations.append(predicted_mask)
-        
-    return [inverse_image_transforms(img.squeeze(0)) for img in segmentations]
+    segmentations = [inverse_image_transforms(img.squeeze(0)) for img in segmentations]
+    
+    return all_images, segmentations
 
 def save_model_output(image_names, output_dir, masks):
     new_image_names = ['masked_'+name for name in image_names]
@@ -82,6 +89,18 @@ def save_model_output(image_names, output_dir, masks):
     for path, mask in zip(new_save_path, masks):
         mask.save(path)
         
+
+def overlay_image_mask(imgs: list, masks: list, image_names: list, output_dir: str):
+    new_image_names = ['masked_'+name for name in image_names]
+    new_save_path = [os.path.join(output_dir, name) for name in new_image_names]
+    for img, path, mask in zip(imgs, new_save_path, masks):
+        fig, ax = plt.subplots()
+        plt.imshow(transforms.ToPILImage()(img))
+        plt.imshow(mask, alpha=.3)
+        plt.axis('off')
+        plt.savefig(path)
+        plt.close()
+       
     
 def main(args):
     pbar = tqdm(total=4)
@@ -101,14 +120,19 @@ def main(args):
     
     # inference
     pbar.set_description('Return predictions')
-    masks = inference(all_images, args.model)
+    all_images, masks = inference(all_images, args.model)
     pbar.update(1)
     
-    # save model prediction
-    pbar.set_description('Save outputs')
-    save_model_output(image_names, args.output, masks)
-    pbar.update(1)
-    
+    # overlay image if true
+    if args.overlay == 'True':
+        overlay_image_mask(all_images, masks, image_names, args.output)  
+        pbar.update(1)
+    else:
+        # save model prediction
+        pbar.set_description('Save outputs')
+        save_model_output(image_names, args.output, masks)
+        pbar.update(1)
+
     
 if __name__ == '__main__':
     main(args=parser.parse_args())
