@@ -30,6 +30,8 @@ During the evaluation the segmentation model with the name `dice_unet4_50eps_16b
 
 ## Installation
 
+## Manual
+
 1. Clone project locally 
 via SSH:
 ```bash
@@ -47,6 +49,15 @@ git clone https://github.com/SimonStaehli/image-segmentation.git
 pip install -r requirements.txt
 ```
 Note: if there is a problem with the installation please refer to the official pytorch installation guide: https://pytorch.org/get-started/locally/
+
+### With Docker
+```bash
+docker build . -f Dockerfile -t brain-mri-semantic-segmentation
+```
+
+```bash
+docker run -it brain-mri-semantic-segmentation
+```
 
 ## Run Locally
 
