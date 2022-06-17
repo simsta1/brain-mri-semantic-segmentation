@@ -20,7 +20,8 @@ documented in the notebook `documentation.ipynb`.
 
 The models can be downloaded from here: https://drive.google.com/drive/folders/1nm74FqZckW0pwa-L1O_SwnRV7-iAA-sR?usp=sharing
 
-During the evaluation the segmentation model with the name `dice_unet4_50eps_16bs.pth` performed best and it is recommended to download this model for inference.
+During the evaluation the segmentation model with the name `dice_unet4_50eps_16bs.pth` performed best and it is recommended to download this model for inference. The evaluation was made on certain patients from the used kaggle dataset for training. I can not guarantee that the model performs good on other images, which might origin from a different distribution.
+
 - Unet with 4 skip connections
 - Trained with normal Dice-Loss
 - 50 epochs in total
