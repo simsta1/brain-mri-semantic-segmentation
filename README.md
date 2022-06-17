@@ -54,7 +54,7 @@ Requires all installation steps already made.
 Following command will segment all images in the folder `image_in` and store the masks in the folder `image_out`.
 
 ```bash
-python inference.py -i image_in -o image_out
+python inference.py -i image_in -o image_out --overlay True
 ```
 
 
