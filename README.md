@@ -74,4 +74,4 @@ python inference.py -i image_in -o image_out --overlay True
 
 Dataset used for training: https://www.kaggle.com/datasets/mateuszbuda/lgg-mri-segmentation 
 
-Kaggle Notebook used for training: https://www.kaggle.com/code/simonstaehli/image-segmentation/data
+Kaggle Notebook used for training: https://www.kaggle.com/code/simonstaehli/image-segmentation
